@@ -1,6 +1,7 @@
 import csv
 import os
 import sys
+import codecs
 
 from django.db import models
 from django.core.management.base import BaseCommand, CommandError
@@ -86,8 +87,10 @@ def import_file(filename, model_cls, field_list):
 
     path = os.path.join(DATA_DIR, filename)
     with open(path, encoding='cp1252') as csvfile:
+        reader = csv.reader(csvfile,
+                            delimiter='^', quotechar='~')
+
         new_instances = []
-        reader = csv.reader(csvfile, delimiter='^', quotechar='~')
         for row in reader:
             new_instance = model_cls()
             for index, field in enumerate(field_list):
