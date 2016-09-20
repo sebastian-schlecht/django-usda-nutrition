@@ -16,12 +16,6 @@ class FoodGroup(models.Model):
 
 
 class FoodDescription(models.Model):
-    """
-    self.create_table_stmt["food_des"] = '''DROP TABLE IF EXISTS food_des; CREATE TABLE food_des
-                                (NDB_No text, FdGrp_Cd, Long_Desc, Shrt_Desc, ComName, ManufacName, Survey,
-                                Ref_desc, Refuse, SciName, N_Factor, Pro_Factor, Fat_Factor, CHO_Factor);
-                                CREATE UNIQUE INDEX food_des_ndb_no_idx ON food_des (NDB_No)'''
-    """
     ndb_no = models.CharField(max_length=5, primary_key=True, help_text='5-digit Nutrient Databank number that uniquely identifies a food item. If this field is defined as numeric, the leading zero will be lost.')
     food_group = models.ForeignKey(FoodGroup, help_text='4-digit code indicating food group to which a food item belongs.')
     long_desc = models.CharField(max_length=200, help_text='200-character description of food item.')
@@ -37,7 +31,8 @@ class FoodDescription(models.Model):
     fat_factor = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text='Factor for calculating calories from fat (see p. 14).')
     cho_factor = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text='Factor for calculating calories from carbohydrate (see p. 14).')
 
-
+    def __unicode__(self):
+        return self.long_desc
 
 class NutrientDefinition(models.Model):
     nutrient_number = models.CharField(primary_key=True, max_length=3, help_text='Unique 3-digit identifier code for a nutrient.')
@@ -47,6 +42,8 @@ class NutrientDefinition(models.Model):
     num_decimal_places = models.CharField(max_length=1, help_text='Number of decimal places to which a nutrient value is rounded.')
     sort_order = models.PositiveSmallIntegerField(help_text='Used to sort nutrient records in the same order as various reports produced from SR.')
 
+    def __unicode__(self):
+        return self.nutrient_description
 
 FOOTNOTE_CHOICES = (
     ('D', 'footnote adding information to the food description'),
@@ -80,6 +77,8 @@ class Weight(models.Model):
     number_data_points = models.PositiveSmallIntegerField(blank=True, null=True, help_text='Number of data points.')
     standard_deviation = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True, help_text='Standard deviation.')
 
+    def __unicode__(self):
+        return self.measure_description
 
 class NutrientData(models.Model):
     food_description = models.ForeignKey(FoodDescription, help_text='5-digit Nutrient Databank number that uniquely identifies a food item. If this field is defined as numeric, the leading zero will be lost.')
