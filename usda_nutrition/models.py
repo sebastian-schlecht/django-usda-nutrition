@@ -51,7 +51,7 @@ FOOTNOTE_CHOICES = (
     ('N', 'footnote providing additional information on a nutrient value. If the Footnt_typ = N, the Nutr_No will also be filled in.')
 )
 class Footnote(models.Model):
-    food_description = models.ForeignKey(FoodDescription, help_text='5-digit Nutrient Databank number that uniquely identifies a food item. If this field is defined as numeric, the leading zero will be lost.')
+    food_description = models.ForeignKey(FoodDescription, related_name='footnotes', help_text='5-digit Nutrient Databank number that uniquely identifies a food item. If this field is defined as numeric, the leading zero will be lost.')
     footnote_no = models.CharField(max_length=4, help_text='Sequence number. If a given footnote applies to more than one nutrient number, the same footnote number is used. As a result, this file cannot be indexed and there is no primary key.')
     footnote_type = models.CharField(max_length=1, help_text='Type of footnote.', choices=FOOTNOTE_CHOICES)
     nutrient_definition = models.ForeignKey(NutrientDefinition, null=True, help_text='Unique 3-digit identifier code for a nutrient to which footnote applies.')
@@ -69,7 +69,7 @@ class DerivationCode(models.Model):
 
 
 class Weight(models.Model):
-    food_description = models.ForeignKey(FoodDescription, help_text='5-digit Nutrient Databank number that uniquely identifies a food item. If this field is defined as numeric, the leading zero will be lost.')
+    food_description = models.ForeignKey(FoodDescription, related_name='weights', help_text='5-digit Nutrient Databank number that uniquely identifies a food item. If this field is defined as numeric, the leading zero will be lost.')
     sequence = models.PositiveSmallIntegerField(help_text='Sequence number.')
     amount = models.DecimalField(max_digits=8, decimal_places=3 )
     measure_description = models.CharField(max_length=84, help_text='Description (for example, cup, diced, and 1-inch pieces).')
@@ -81,7 +81,7 @@ class Weight(models.Model):
         return self.measure_description
 
 class NutrientData(models.Model):
-    food_description = models.ForeignKey(FoodDescription, help_text='5-digit Nutrient Databank number that uniquely identifies a food item. If this field is defined as numeric, the leading zero will be lost.')
+    food_description = models.ForeignKey(FoodDescription, related_name='nutrient_data', help_text='5-digit Nutrient Databank number that uniquely identifies a food item. If this field is defined as numeric, the leading zero will be lost.')
     nutrient_definition = models.ForeignKey(NutrientDefinition, help_text='Unique 3-digit identifier code for a nutrient.')
     nutrient_value = models.DecimalField(max_digits=13, decimal_places=3, help_text='Amount in 100 grams, edible portion. (Nutrient values have been rounded to a specified number of decimal places for each nutrient. Number of decimal places is listed in the Nutrient Definition file.)')
     number_data_points = models.PositiveSmallIntegerField(help_text='Number of data points is the number of analyses used to calculate the nutrient value. If the number of data points is 0, the value was calculated or imputed.')
