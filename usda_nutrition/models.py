@@ -14,6 +14,9 @@ class FoodGroup(models.Model):
     code = models.CharField(max_length=4, primary_key=True, help_text='4-digit code identifying a food group. Only the first 2 digits are currently assigned. In the future, the last 2 digits may be used. Codes may not be consecutive.')
     description = models.CharField(max_length=60, help_text='Name of food group.')
 
+    def __unicode__(self):
+        return self.description
+
 
 class FoodDescription(models.Model):
     ndb_no = models.CharField(max_length=5, primary_key=True, help_text='5-digit Nutrient Databank number that uniquely identifies a food item. If this field is defined as numeric, the leading zero will be lost.')
@@ -56,6 +59,9 @@ class Footnote(models.Model):
     footnote_type = models.CharField(max_length=1, help_text='Type of footnote.', choices=FOOTNOTE_CHOICES)
     nutrient_definition = models.ForeignKey(NutrientDefinition, null=True, help_text='Unique 3-digit identifier code for a nutrient to which footnote applies.')
     footnote_text = models.CharField(max_length=200, help_text='Footnote text.')
+
+    def __unicode__(self):
+        return self.footnote_text
 
 
 class SourceCode(models.Model):
@@ -100,7 +106,8 @@ class NutrientData(models.Model):
     modified_date = models.CharField(max_length=10, null=True, blank=True, help_text='Indicates when a value was either added to the database or last modified.')
     confidence_code = models.CharField(max_length=1, null=True, blank=True, help_text='Confidence Code indicating data quality, based on evaluation of sample plan, sample handling, analytical method, analytical quality control, and number of samples analyzed. Not included in this release, but is planned for future releases.')
 
-
+    def __unicode__(self):
+        return self.nutrient_value + " " +  self.nutrient_definition.units
 # class DataSource(models.Model):
 #     datasrc_id = models.CharField(max_length=6, primary_key=True, help_text='Unique ID identifying the reference/source.')
 #     authors = models.CharField(max_length=255, null=True, blank=True, help_text='List of authors for a journal article or name of sponsoring organization for other documents.')
