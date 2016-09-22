@@ -3,7 +3,7 @@ import os
 import sys
 import codecs
 
-from django.db import models
+from django.db import models, transaction
 from django.core.management.base import BaseCommand, CommandError
 
 from usda_nutrition import models as usda
@@ -42,14 +42,13 @@ INPUT_FILES = (
         'filename': 'FOOTNOTE.txt',
         'model': usda.Footnote,
         'fields': ['food_description_id', 'footnote_no', 'footnote_type', 'nutrient_definition_id', 'footnote_text']
-    }
     # These tables aren't currently imported, as the corresponding models are
     # commented out of models.py.
-    # }, {
-    #     'filename': 'NUT_DATA.txt',
-    #     'model': usda.NutrientData,
-    #     'fields': ['food_description_id', 'nutrient_definition_id', 'nutrient_value', 'number_data_points', 'standard_error', 'source_code_id', 'derivation_code_id', 'ref_food_description_id', 'add_nutr_mark', 'num_studies', 'minimum', 'maximum', 'degrees_of_freedom', 'lower_error_bound', 'upper_error_bound', 'statistical_comments', 'modified_date', 'confidence_code']
-    # }, {
+    }, {
+         'filename': 'NUT_DATA.txt',
+         'model': usda.NutrientData,
+         'fields': ['food_description_id', 'nutrient_definition_id', 'nutrient_value', 'number_data_points', 'standard_error', 'source_code_id', 'derivation_code_id', 'ref_food_description_id', 'add_nutr_mark', 'num_studies', 'minimum', 'maximum', 'degrees_of_freedom', 'lower_error_bound', 'upper_error_bound', 'statistical_comments', 'modified_date', 'confidence_code']
+    }
     # {
     #     'filename': 'DATA_SRC.txt',
     #     'model': usda.DataSource,
@@ -81,12 +80,17 @@ def value_for_field(field, value):
     # Return the value, coercing empty strings to None.
     return value or None
 
+def ensure_unicode(v):
+    if isinstance(v, str):
+        v = v.decode('utf8', 'ignore')
+    return unicode(v)  # convert anything not a string to unicode too
+
 def import_file(filename, model_cls, field_list):
     sys.stdout.write('Importing %s... ' % filename)
     sys.stdout.flush()
 
     path = os.path.join(DATA_DIR, filename)
-    with open(path, encoding='cp1252') as csvfile:
+    with codecs.open(path, 'rb') as csvfile:
         reader = csv.reader(csvfile,
                             delimiter='^', quotechar='~')
 
@@ -95,16 +99,21 @@ def import_file(filename, model_cls, field_list):
             new_instance = model_cls()
             for index, field in enumerate(field_list):
                 value = value_for_field(model_cls._meta.get_field(field), row[index])
+                if value:
+                    value = ensure_unicode(value)
                 setattr(new_instance, field, value)
             new_instances.append(new_instance)
         model_cls.objects.bulk_create(new_instances)
 
     print('Done!')
 
+@transaction.atomic
+def run():
+    for info in INPUT_FILES:
+                import_file(info['filename'], info['model'], info['fields'])
 
 class Command(BaseCommand):
     help = 'Imports the USDA Nutrition Database (version SR28)'
 
     def handle(self, *args, **options):
-        for info in INPUT_FILES:
-            import_file(info['filename'], info['model'], info['fields'])
+        run()
