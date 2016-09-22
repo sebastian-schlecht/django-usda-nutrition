@@ -94,7 +94,6 @@ def import_file(filename, model_cls, field_list):
         reader = csv.reader(csvfile,
                             delimiter='^', quotechar='~')
 
-        new_instances = []
         for row in reader:
             new_instance = model_cls()
             for index, field in enumerate(field_list):
@@ -102,8 +101,7 @@ def import_file(filename, model_cls, field_list):
                 if value:
                     value = ensure_unicode(value)
                 setattr(new_instance, field, value)
-            new_instances.append(new_instance)
-        model_cls.objects.bulk_create(new_instances)
+            model_cls.objects.bulk_create([new_instance])
 
     print('Done!')
 
