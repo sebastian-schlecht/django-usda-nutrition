@@ -107,7 +107,7 @@ class NutrientData(models.Model):
     confidence_code = models.CharField(max_length=1, null=True, blank=True, help_text='Confidence Code indicating data quality, based on evaluation of sample plan, sample handling, analytical method, analytical quality control, and number of samples analyzed. Not included in this release, but is planned for future releases.')
 
     def __unicode__(self):
-        return self.nutrient_value + " " +  self.nutrient_definition.units
+        return str(self.nutrient_value) + " " +  str(self.nutrient_definition.units)
 # class DataSource(models.Model):
 #     datasrc_id = models.CharField(max_length=6, primary_key=True, help_text='Unique ID identifying the reference/source.')
 #     authors = models.CharField(max_length=255, null=True, blank=True, help_text='List of authors for a journal article or name of sponsoring organization for other documents.')
